@@ -74,18 +74,60 @@
     const ButtonElement = document.querySelector(".add-form-button");
     const oneCommentBlock = document.querySelector(".comments");
 
-    function getDateTime() {
-      const nowDate = new Date();
-      const day = String(nowDate.getDate()).padStart(2, '0');
-      const month = String(nowDate.getMonth() + 1).padStart(2, '0');
-      const year = nowDate.getFullYear();
-      const hours = String(nowDate.getHours()).padStart(2, '0');
-      const minutes = String(nowDate.getMinutes()).padStart(2, '0');
+    let comments = [
+      {
+        name: "Глеб Фокин",
+        date: "12.02.22 12:18",
+        text: "Это будет первый комментарий на этой странице",
+        numberLikes: 3, 
+        likeState: true 
+      },
+      {
+        name: "Варвара Н.",
+        date: "13.02.22 19:22",
+        text: "Мне нравится как оформлена эта страница! ❤",
+        numberLikes: 75,
+        likeState: false
+      }
+    ];
 
-      return (`${day}.${month}.${year} ${hours}:${minutes}`);
-    };
+    function renderComments() {
+      oneCommentBlock.innerHTML = comments.map((comment, index) => {
+       return `<li class="comment">
+          <div class="comment-header">
+            <div>${comment.name}</div>
+            <div>${comment.date}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              ${comment.text}
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">${comment.numberLikes}</span>
+              <button class="like-button ${comment.likeState ? '-active-like' : ''} " data-index="${index}"</button>
+            </div>
+          </div>
+        </li>`;
+      }).join("");
+    }
+    renderComments();
 
-    ButtonElement.addEventListener("click", () => {
+    oneCommentBlock.addEventListener('click', (event) => {
+      const likeButton = event.target.closest('.like-button');
+        if ('.likeButton') {
+          const commentIndex = parseInt(likeButton.dataset.index);
+          const comment = comments[commentIndex];
+
+      comment.likeState = !comment.likeState;
+      comment.numberLikes += comment.likeState ? 1 : -1;
+
+      renderComments();
+    }
+  });
+
+  ButtonElement.addEventListener("click", () => {
       const name = NameElement.value;
       const text = TextElement.value;
 
@@ -108,32 +150,31 @@
         return; 
       }
 
-      const CurrentDateAndTime = getDateTime();
+      function getDateTime() {
+      const nowDate = new Date();
+      const day = String(nowDate.getDate()).padStart(2, '0');
+      const month = String(nowDate.getMonth() + 1).padStart(2, '0');
+      const year = nowDate.getFullYear();
+      const hours = String(nowDate.getHours()).padStart(2, '0');
+      const minutes = String(nowDate.getMinutes()).padStart(2, '0');
 
-      const newComment = `
-      <li class="comment">
-          <div class="comment-header">
-            <div>${name}</div>
-            <div>${CurrentDateAndTime}</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              ${text}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">0</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        `;
+      return (`${day}.${month}.${year} ${hours}:${minutes}`);
+    };
 
-      oneCommentBlock.innerHTML += newComment;
+    const newComment = {
+      name: NameElement.value,
+      date: getDateTime(),
+      text: TextElement.value,
+      numberLikes: 0,
+      likeState: false
+    };
 
-      NameElement.value = "";
-      TextElement.value = "";
-    });
+    comments.push(newComment);
+    renderComments();
+
+    NameElement.value = "";
+    TextElement.value = "";
+
+   });
   </script>
 </html>
