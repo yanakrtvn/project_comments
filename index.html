@@ -74,6 +74,10 @@
     const ButtonElement = document.querySelector(".add-form-button");
     const oneCommentBlock = document.querySelector(".comments");
 
+    const sanitizerHTML = (value) => {
+      return value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
     let comments = [
       {
         name: "Глеб Фокин",
@@ -93,7 +97,7 @@
 
     function renderComments() {
       oneCommentBlock.innerHTML = comments.map((comment, index) => {
-       return `<li class="comment">
+       return `<li class="comment" data-index=${index}>
           <div class="comment-header">
             <div>${comment.name}</div>
             <div>${comment.date}</div>
@@ -106,7 +110,7 @@
           <div class="comment-footer">
             <div class="likes">
               <span class="likes-counter">${comment.numberLikes}</span>
-              <button class="like-button ${comment.likeState ? '-active-like' : ''} " data-index="${index}"</button>
+              <button data-index="${index}" class="like-button ${comment.likeState ? '-active-like' : ''}"></button>
             </div>
           </div>
         </li>`;
@@ -116,16 +120,25 @@
 
     oneCommentBlock.addEventListener('click', (event) => {
       const likeButton = event.target.closest('.like-button');
-        if ('.likeButton') {
-          const commentIndex = parseInt(likeButton.dataset.index);
-          const comment = comments[commentIndex];
+      const commentElement = event.target.closest('.comment');
+  
+      if (likeButton) {
+        event.stopPropagation();
+        
+        const commentIndex = parseInt(likeButton.dataset.index);
+        const comment = comments[commentIndex];
+        comment.likeState = !comment.likeState;
+        comment.numberLikes += comment.likeState ? 1 : -1;
+        renderComments();
+      } 
 
-      comment.likeState = !comment.likeState;
-      comment.numberLikes += comment.likeState ? 1 : -1;
-
-      renderComments();
-    }
-  });
+      else if (commentElement) {
+        const commentIndex = parseInt(commentElement.dataset.index);
+        const currentComment = comments[commentIndex];
+        TextElement.value = `> ${currentComment.name}: ${currentComment.text}`;
+        TextElement.focus();
+      }
+    });
 
   ButtonElement.addEventListener("click", () => {
       const name = NameElement.value;
@@ -154,7 +167,7 @@
       const nowDate = new Date();
       const day = String(nowDate.getDate()).padStart(2, '0');
       const month = String(nowDate.getMonth() + 1).padStart(2, '0');
-      const year = nowDate.getFullYear();
+      const year = String(nowDate.getFullYear()).slice(-2);
       const hours = String(nowDate.getHours()).padStart(2, '0');
       const minutes = String(nowDate.getMinutes()).padStart(2, '0');
 
@@ -162,11 +175,11 @@
     };
 
     const newComment = {
-      name: NameElement.value,
+      name: sanitizerHTML(NameElement.value),
       date: getDateTime(),
-      text: TextElement.value,
+      text: sanitizerHTML(TextElement.value),
       numberLikes: 0,
-      likeState: false
+      likeState: false,
     };
 
     comments.push(newComment);
