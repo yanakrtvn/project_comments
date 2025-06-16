@@ -1,7 +1,5 @@
 import { renderComments } from "./modules/render.js";
-import { initEventHandlers } from "./modules/formHandler.js";
-import { initCommentInteractions } from "./modules/commentHandler.js";
+import { initAddCommentListener } from "./modules/listeners.js";
 
 renderComments();
-initEventHandlers();
-initCommentInteractions();
+initAddCommentListener();

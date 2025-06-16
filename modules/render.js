@@ -1,7 +1,9 @@
 import { comments } from "./data.js";
+import { initLikeListeners, initQuoteListeners } from "./listeners.js";
 
 export const renderComments = () => {
   const oneCommentBlock = document.querySelector(".comments");
+
   oneCommentBlock.innerHTML = comments
     .map((comment, index) => {
       return `<li class="comment" data-index="${index}"">
@@ -23,4 +25,7 @@ export const renderComments = () => {
         </li>`;
     })
     .join("");
+
+    initLikeListeners();
+    initQuoteListeners();
 };
