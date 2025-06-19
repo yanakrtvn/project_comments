@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Проект "Комменты"</title>
@@ -9,7 +9,7 @@
   <body>
     <div class="container">
       <ul class="comments">
-        <li class="comment">
+        <!-- <li class="comment">
           <div class="comment-header">
             <div>Глеб Фокин</div>
             <div>12.02.22 12:18</div>
@@ -42,7 +42,7 @@
               <button class="like-button -active-like"></button>
             </div>
           </div>
-        </li>
+        </li> -->
       </ul>
       <div class="add-form">
         <input
@@ -63,131 +63,11 @@
     </div>
     <style>
       .error {
-        background-color: #f18a8a;
+        background-color: #f1bdbd;
       }
     </style>
+    <script type="module" src="./main.js"></script>
   </body>
 
-  <script>
-    const NameElement = document.querySelector(".add-form-name");
-    const TextElement = document.querySelector(".add-form-text");
-    const ButtonElement = document.querySelector(".add-form-button");
-    const oneCommentBlock = document.querySelector(".comments");
-
-    const sanitizerHTML = (value) => {
-      return value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-    }
-
-    let comments = [
-      {
-        name: "Глеб Фокин",
-        date: "12.02.22 12:18",
-        text: "Это будет первый комментарий на этой странице",
-        numberLikes: 3, 
-        likeState: true 
-      },
-      {
-        name: "Варвара Н.",
-        date: "13.02.22 19:22",
-        text: "Мне нравится как оформлена эта страница! ❤",
-        numberLikes: 75,
-        likeState: false
-      }
-    ];
-
-    function renderComments() {
-      oneCommentBlock.innerHTML = comments.map((comment, index) => {
-       return `<li class="comment" data-index=${index}>
-          <div class="comment-header">
-            <div>${comment.name}</div>
-            <div>${comment.date}</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              ${comment.text}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">${comment.numberLikes}</span>
-              <button data-index="${index}" class="like-button ${comment.likeState ? '-active-like' : ''}"></button>
-            </div>
-          </div>
-        </li>`;
-      }).join("");
-    }
-    renderComments();
-
-    oneCommentBlock.addEventListener('click', (event) => {
-      const likeButton = event.target.closest('.like-button');
-      const commentElement = event.target.closest('.comment');
-  
-      if (likeButton) {
-        event.stopPropagation();
-        
-        const commentIndex = parseInt(likeButton.dataset.index);
-        const comment = comments[commentIndex];
-        comment.likeState = !comment.likeState;
-        comment.numberLikes += comment.likeState ? 1 : -1;
-        renderComments();
-      } 
-
-      else if (commentElement) {
-        const commentIndex = parseInt(commentElement.dataset.index);
-        const currentComment = comments[commentIndex];
-        TextElement.value = `> ${currentComment.name}: ${currentComment.text}`;
-        TextElement.focus();
-      }
-    });
-
-  ButtonElement.addEventListener("click", () => {
-      const name = NameElement.value;
-      const text = TextElement.value;
-
-      NameElement.classList.remove("error");
-      TextElement.classList.remove("error");
-
-      let Errors = false;
-
-      if (!name) {
-        NameElement.classList.add("error");
-        Errors = true;
-      }
-
-      if (!text) {
-        TextElement.classList.add("error");
-        Errors = true;
-      }
-
-      if (Errors) {
-        return; 
-      }
-
-      function getDateTime() {
-      const nowDate = new Date();
-      const day = String(nowDate.getDate()).padStart(2, '0');
-      const month = String(nowDate.getMonth() + 1).padStart(2, '0');
-      const year = String(nowDate.getFullYear()).slice(-2);
-      const hours = String(nowDate.getHours()).padStart(2, '0');
-      const minutes = String(nowDate.getMinutes()).padStart(2, '0');
-
-      return (`${day}.${month}.${year} ${hours}:${minutes}`);
-    };
-
-    const newComment = {
-      name: sanitizerHTML(NameElement.value),
-      date: getDateTime(),
-      text: sanitizerHTML(TextElement.value),
-      numberLikes: 0,
-      likeState: false,
-    };
-
-    comments.push(newComment);
-    renderComments();
-
-    NameElement.value = "";
-    TextElement.value = "";
-
-   });
-  </script>
+  <script></script>
 </html>
