@@ -5,8 +5,8 @@ export const renderComments = () => {
   const oneCommentBlock = document.querySelector(".comments");
 
   oneCommentBlock.innerHTML = comments
-    .map((comment, index) => {
-      return `<li class="comment" data-index="${index}"">
+    .map((comment) => {
+      return `<li class="comment" data-id="${comment.id}"">
           <div class="comment-header">
             <div>${comment.name}</div>
             <div>${comment.date}</div>
@@ -19,13 +19,13 @@ export const renderComments = () => {
           <div class="comment-footer">
             <div class="likes">
               <span class="likes-counter">${comment.numberLikes}</span>
-              <button data-index="${index}" class="like-button ${comment.likeState ? "-active-like" : ""}"></button>
+              <button data-id="${comment.id}" class="like-button ${comment.likeState ? "-active-like" : ""}"></button>
             </div>
           </div>
         </li>`;
     })
     .join("");
 
-    initLikeListeners();
-    initQuoteListeners();
+  initLikeListeners();
+  initQuoteListeners();
 };
