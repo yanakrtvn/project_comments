@@ -1,6 +1,8 @@
 import { comments } from "./data.js";
 import { renderComments } from "./render.js";
-import { sanitizeHTML, getDateTime } from "./utils.js";
+import { sanitizeHTML } from "./utils.js";
+import { updateComments } from "./data.js";
+import { getComments, postComment } from "./api.js";
 
 export const initAddCommentListener = () => {
   const NameElement = document.querySelector(".add-form-name");
@@ -8,73 +10,73 @@ export const initAddCommentListener = () => {
   const ButtonElement = document.querySelector(".add-form-button");
 
   ButtonElement.addEventListener("click", () => {
-    const name = NameElement.value;
-    const text = TextElement.value;
+    const name = NameElement.value.trim();
+    const text = TextElement.value.trim();
 
     NameElement.classList.remove("error");
     TextElement.classList.remove("error");
 
-    let Errors = false;
-
-    if (!name) {
+    if (!name || name.length < 3) {
       NameElement.classList.add("error");
-      Errors = true;
+      return;
     }
-
-    if (!text) {
+    if (!text || text.length < 3) {
       TextElement.classList.add("error");
-      Errors = true;
-    }
-
-    if (Errors) {
       return;
     }
 
-    const newComment = {
-      name: sanitizeHTML(NameElement.value),
-      date: getDateTime(),
-      text: sanitizeHTML(TextElement.value),
-      numberLikes: 0,
-      likeState: false,
-    };
+    postComment({
+      name: sanitizeHTML(name),
+      text: sanitizeHTML(text),
+    })
+      .then(getComments)
+      .then((data) => {
+        updateComments(data.comments);
+        renderComments();
 
-    comments.push(newComment);
-    renderComments();
-
-    NameElement.value = "";
-    TextElement.value = "";
+        NameElement.value = "";
+        TextElement.value = "";
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+        alert(error.message);
+      });
   });
 };
 
 export const initLikeListeners = () => {
-    const likeButtons = document.querySelectorAll(".like-button");
+  const likeButtons = document.querySelectorAll(".like-button");
 
-    for (const likeButton of likeButtons) {
-        likeButton.addEventListener("click", (event) => {
-            event.stopPropagation();
+  for (const likeButton of likeButtons) {
+    likeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
 
-        const index = likeButton.dataset.index;
-        const comment = comments[index];
+      const commentId = likeButton.dataset.id;
+      const comment = comments.find((c) => c.id == commentId);
 
-        comment.numberLikes = comment.likeState
-            ? comment.numberLikes - 1
-            : comment.numberLikes + 1;
+      comment.numberLikes = comment.likeState
+        ? comment.numberLikes - 1
+        : comment.numberLikes + 1;
 
-        comment.likeState = !comment.likeState;
+      comment.likeState = !comment.likeState;
 
-        renderComments();
-        });
-    };
+      renderComments();
+    });
+  }
 };
 
 export const initQuoteListeners = () => {
-    const TextElement = document.querySelector(".add-form-text");
-    const commentsElement = document.querySelectorAll(".comment");
+  const TextElement = document.querySelector(".add-form-text");
+  const commentsElement = document.querySelectorAll(".comment");
 
-    for (const commentElement of commentsElement) {
-        commentElement.addEventListener("click", () => {
-            const currentComment = comments[commentElement.dataset.index];
-            TextElement.value = `${currentComment.name}: ${currentComment.text}`;
-        });
-    };
+  for (const commentElement of commentsElement) {
+    commentElement.addEventListener("click", () => {
+      const commentId = commentElement.dataset.id;
+      const comment = comments.find((c) => c.id == commentId);
+
+      if (comment) {
+        TextElement.value = `${comment.name}: ${comment.text}`;
+      }
+    });
+  }
 };
