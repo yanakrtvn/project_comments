@@ -3,6 +3,9 @@ import { initAddCommentListener } from "./modules/listeners.js";
 import { updateComments } from "./modules/data.js";
 import { getComments } from "./modules/api.js";
 
+document.querySelector(".comments").innerHTML =
+  "Пожалуйста подождите, загружаю комментарии...";
+
 initAddCommentListener();
 
 const loadComments = () => {

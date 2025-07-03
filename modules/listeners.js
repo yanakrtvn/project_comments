@@ -25,12 +25,18 @@ export const initAddCommentListener = () => {
       return;
     }
 
+    document.querySelector(".form-loading").style.display = "block";
+    document.querySelector(".add-form").style.display = "none";
+
     postComment({
       name: sanitizeHTML(name),
       text: sanitizeHTML(text),
     })
       .then(getComments)
       .then((data) => {
+        document.querySelector(".form-loading").style.display = "none";
+        document.querySelector(".add-form").style.display = "flex";
+
         updateComments(data.comments);
         renderComments();
 
@@ -44,6 +50,14 @@ export const initAddCommentListener = () => {
   });
 };
 
+function delay(interval = 300) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, interval);
+  });
+}
+
 export const initLikeListeners = () => {
   const likeButtons = document.querySelectorAll(".like-button");
 
@@ -54,13 +68,17 @@ export const initLikeListeners = () => {
       const commentId = likeButton.dataset.id;
       const comment = comments.find((c) => c.id == commentId);
 
-      comment.numberLikes = comment.likeState
-        ? comment.numberLikes - 1
-        : comment.numberLikes + 1;
+      likeButton.classList.add("like-loading");
+      delay(1000).then(() => {
+        comment.numberLikes = comment.likeState
+          ? comment.numberLikes - 1
+          : comment.numberLikes + 1;
 
-      comment.likeState = !comment.likeState;
+        comment.likeState = !comment.likeState;
 
-      renderComments();
+        likeButton.classList.remove("like-loading");
+        renderComments();
+      });
     });
   }
 };
