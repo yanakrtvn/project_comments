@@ -9,28 +9,22 @@ export const initAddCommentListener = () => {
   const TextElement = document.querySelector(".add-form-text");
   const ButtonElement = document.querySelector(".add-form-button");
 
-  ButtonElement.addEventListener("click", () => {
+  const handlePostClick = () => {
     const name = NameElement.value.trim();
     const text = TextElement.value.trim();
 
-    NameElement.classList.remove("error");
-    TextElement.classList.remove("error");
-
-    if (!name || name.length < 3) {
-      NameElement.classList.add("error");
-      return;
-    }
-    if (!text || text.length < 3) {
-      TextElement.classList.add("error");
-      return;
-    }
+    document.querySelector(".form-loading").style.display = "block";
+    document.querySelector(".add-form").style.display = "none";
 
     postComment({
       name: sanitizeHTML(name),
       text: sanitizeHTML(text),
     })
-      .then(getComments)
+      .then(() => getComments())
       .then((data) => {
+        document.querySelector(".form-loading").style.display = "none";
+        document.querySelector(".add-form").style.display = "flex";
+
         updateComments(data.comments);
         renderComments();
 
@@ -38,11 +32,44 @@ export const initAddCommentListener = () => {
         TextElement.value = "";
       })
       .catch((error) => {
-        console.error("Ошибка:", error);
-        alert(error.message);
+        document.querySelector(".form-loading").style.display = "none";
+        document.querySelector(".add-form").style.display = "flex";
+
+        if (error.message === "Failed to fetch") {
+          alert("Нет интернета. Пожалуйста, попробуйте снова");
+        }
+
+        if (error.message === "Ошибка сервера") {
+          alert("Ошибка сервера");
+        }
+
+        if (error.message === "Некорректный запрос") {
+          alert("Имя и текст должны быть не короче 3-х символов");
+        }
+        NameElement.classList.add("-error");
+        TextElement.classList.add("-error");
+
+        setTimeout(() => {
+          NameElement.classList.remove("-error");
+          TextElement.classList.remove("-error");
+        }, 4000);
+
+        if (error.message === "Ошибка сервера") {
+          handlePostClick();
+        }
       });
-  });
+  };
+
+  ButtonElement.addEventListener("click", handlePostClick);
 };
+
+function delay(interval = 300) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, interval);
+  });
+}
 
 export const initLikeListeners = () => {
   const likeButtons = document.querySelectorAll(".like-button");
@@ -54,13 +81,17 @@ export const initLikeListeners = () => {
       const commentId = likeButton.dataset.id;
       const comment = comments.find((c) => c.id == commentId);
 
-      comment.numberLikes = comment.likeState
-        ? comment.numberLikes - 1
-        : comment.numberLikes + 1;
+      likeButton.classList.add("like-loading");
+      delay(1000).then(() => {
+        comment.numberLikes = comment.likeState
+          ? comment.numberLikes - 1
+          : comment.numberLikes + 1;
 
-      comment.likeState = !comment.likeState;
+        comment.likeState = !comment.likeState;
 
-      renderComments();
+        likeButton.classList.remove("like-loading");
+        renderComments();
+      });
     });
   }
 };
