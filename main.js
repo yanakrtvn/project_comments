@@ -1,14 +1,12 @@
 import { renderComments } from "./modules/render.js";
-import { initAddCommentListener } from "./modules/listeners.js";
 import { updateComments } from "./modules/data.js";
 import { getComments } from "./modules/api.js";
 
-document.querySelector(".comments").innerHTML =
-  "Пожалуйста подождите, загружаю комментарии...";
-
-initAddCommentListener();
-
-const loadComments = () => {
+export const loadComments = (startLoading) => {
+  if (startLoading) {
+    document.querySelector(".container").innerHTML =
+      `<p>Пожалуйста подождите, загружаю комментарии...</p>`;
+  }
   getComments()
     .then((data) => {
       updateComments(data.comments);
@@ -19,4 +17,4 @@ const loadComments = () => {
     });
 };
 
-loadComments();
+loadComments(true);
